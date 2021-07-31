@@ -85,6 +85,10 @@ void lv_gui(void)
 	lv_weather(0);
 }
 
+/* 
+ * 界面切换
+ * motion：界面刷新方向
+ */
 void lv_InterfaceManagement(int motion)
 {
 	switch(motion)

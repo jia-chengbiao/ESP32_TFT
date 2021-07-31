@@ -8,6 +8,9 @@
 #include "../include/my_BSP/sd_card.h"
 #include "../include/my_BSP/lv_port_fs.h"
 
+#define LEFT_IO     GPIO_NUM_21
+#define RIGHT_IO    GPIO_NUM_22
+
 Network network;
 Display screen;
 SdCard tf;
@@ -16,13 +19,18 @@ struct tm timeinfo;
 long timeSinceLastWUpdate = 0;
 long timeSinceLastTUpdate = 0;
 
-static int flag = 0;
+// static int flag = 0;
 long flagUpdate = 0;
+
+int buttonSwitch();
+
 
 void setup()
 {
     Serial.begin(115200);
     
+    gpio_set_direction(LEFT_IO,GPIO_MODE_INPUT);
+    gpio_set_direction(RIGHT_IO,GPIO_MODE_INPUT);
     //SD卡初始化
     tf.init();
 
@@ -68,7 +76,29 @@ void loop()
 		network.getWeather();
 		timeSinceLastWUpdate = millis();
   	}
-    
+
+    // printf("%d\n",buttonSwitch());
+    //界面控制
+    lv_InterfaceManagement(buttonSwitch());
+
     lv_task_handler();
     delay(10);
+}
+
+
+int buttonSwitch()
+{
+    static int flag = 0;
+	if(gpio_get_level(LEFT_IO) == 0 && flag == 0){
+        flag = 1;
+        return 1;
+    }
+    if(gpio_get_level(RIGHT_IO) == 0 && flag == 0){
+        flag = 1;
+        return 2;
+    }
+    if(gpio_get_level(LEFT_IO) && gpio_get_level(RIGHT_IO)){
+        flag = 0;
+    } 
+    return 0;
 }
